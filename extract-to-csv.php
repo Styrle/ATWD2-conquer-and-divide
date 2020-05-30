@@ -1,6 +1,6 @@
 <?php
 # set timezone
-@date_default_timezone_set("GMT"); 
+@date_default_timezone_set("GMT");
 
 # set resource requirements
 ini_set('memory_limit', '512M');
@@ -70,15 +70,16 @@ fputs($f501, $header);
 
 # open the input CSV file and throw away the first (header) line
 $fp = fopen("air-quality-data-2004-2019.csv","r") or die("failed to open file");
-fgetcsv($fp); //this is what is slow, use fget and explode. 
+fgetcsv($fp);
 
 # initialise line counter & error-lines counter
 $ln = 0;
 $er = 0;
 
-# now process one line at a time
-while($row = fgetcsv($fp, 500, ";")) {
-
+# now process one line at a time into the correct files
+while(!feof($fp)) {
+# here we are defining row and using explode to process our data and direct it where to go below
+$row = explode(";", fgets($fp));
     # select the file
     switch ($row[4]) {
         case 188:
@@ -136,19 +137,20 @@ while($row = fgetcsv($fp, 500, ";")) {
            $fo = $f501;
            break;
     }
-    
+
 	# ensure CO2 or CO exist and write out record
-    if (!empty($row[1]) OR !empty($row[11])) {
-        $r = $row[4].','.strtotime($row[0]).','.$row[1].','.$row[2].','.$row[3].','.$row[4].','.$row[5].','.$row[6].','
-            .$row[7].','.$row[8].','.$row[9].','.$row[10].','.$row[11].','.$row[12].','.$row[13].','.$row[17].','.$row[18]."\r\n";
-            
+  if (!empty($row[1]) OR !empty($row[11])) {
+      $r = $row[4].','.$row[0].','.$row[1].','.$row[2].','.$row[3].','.$row[5].','.$row[6].','
+          .$row[7].','.$row[8].','.$row[9].','.$row[10].','.$row[11].','.$row[12].','.$row[13].','.$row[17].','.$row[18].','."\r\n";
+
+
         fwrite($fo, $r);
     }
     # else count as rejected line
     else {
 			$er++;
     }
-    
+
 	# count total lines processed
     $ln++;
 }
