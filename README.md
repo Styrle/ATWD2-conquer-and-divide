@@ -1,2 +1,5 @@
 # AWD2
-In this project I will be creating visualisation of data, this will initially include the task of cleaning the data and creating a format in which to manage the size of the data.
+In **This** project we are displaying the divide and conquer method for big data, dividing areas and their polution data to later plot out and display.
+
+This project also goes from csv format to xml with validation.
+ 
