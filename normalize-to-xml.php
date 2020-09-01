@@ -1,21 +1,17 @@
 <?php
 $xml = new XMLWriter();
 $files = ['188','203','206','209','213','215','228','270','271','375','395','447','452','459','463','481','500','501'];
-#Sources and learning materials
-#https://stackoverflow.com/questions/11364483/convert-csv-file-to-xml-with-php
-#https://stackoverflow.com/questions/6141572/convert-tab-delimited-text-file-to-xml
-
 
 
 #here we are setting up our files and where they will be put
 for($i = 0; $i < sizeof($files); $i++) {
-    $fp = fopen('data_' . $files[$i] . '.csv', 'r');
+    $workingFile = fopen('data_' . $files[$i] . '.csv', 'r');
     $xml->openUri('data_' . $files[$i] . '.xml');
 
     $xml->startDocument('1.0', 'utf-8');
-//this will be used to open our current file and get the data from it and below we are telling what data we want to be pulled and called
-    while(!feof($fp)) {
-      $row = explode(",", fgets($fp));
+
+    while(!feof($workingFile)) {
+      $row = explode(",", fgets($workingFile));
 
       #strlen is used to make sure that our element contains the same ID
       if(strlen($row[0]) > 3) { continue; }
@@ -25,27 +21,27 @@ for($i = 0; $i < sizeof($files); $i++) {
       $xml->writeAttribute('id', $row[0]);
       $xml->writeAttribute('name', $row[14]);
       $xml->writeAttribute('geocode', $row[15] . "," . $row[16]);
-      $xml->setIndent(4);
+      $xml->setIndent(1);
 
       break;
 
     }
 
-    fclose($fp);
+    fclose($workingFile);
 
-    $fp = fopen('data_' . $files[$i] . '.csv', 'r');
+    $workingFile = fopen('data_' . $files[$i] . '.csv', 'r');
 
     #Writes the opening element
-    while(!feof($fp)) {
+    while(!feof($workingFile)) {
 
-        $row = explode(",", fgets($fp));
+        $row = explode(",", fgets($workingFile));
 
         if(strlen($row[0]) > 3) { continue; }
         # Here we are saying to check for no, nox and no2 so that we have no empty attributes when we change to XML
-        if(!empty($row[2]) > 0 && !empty($row[4]) > 0 && !empty($row[3]) > 0) {
-          #here we are creating our child element which will sit inside our station element
+        if(strlen($row[2]) > 0 && strlen($row[4]) > 0 && strlen($row[3]) > 0 ) {
+
           $xml->startElement('rec');
-          $xml->writeAttribute('ts', $row[1]);
+          $xml->writeAttribute('ts', strftime("%Y-%m-%dT%H:%M:%SZ" , $row[1]));
           $xml->writeAttribute('nox', $row[2]);
           $xml->writeAttribute('no', $row[4]);
           $xml->writeAttribute('no2', $row[3]);
@@ -57,10 +53,13 @@ for($i = 0; $i < sizeof($files); $i++) {
     }
 
     $xml->endElement();
-    fclose($fp);
+
+    fclose($workingFile);
+    # stop the counter
 
   #  echo $et - $st;
   #  echo ' seconds to process';
+
 }
 
 
